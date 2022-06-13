@@ -130,7 +130,7 @@ class CameraFocus:
                 elif type == AVG_EDGE_STRENGTH:
                     val = self.focus_average_edge_strength(image)
                 print("Image: {}\tFocus level: {}".format(fname, val))
-                img_names.append("/".join(abs_fname.split("/")[-3:]))
+                img_names.append(abs_fname.split("/")[-1])
                 sharpness_values.append(val)
         return img_names, sharpness_values
 
@@ -148,9 +148,10 @@ class CameraFocus:
     def generate_ground_truth_data(self, out_file):
         # read all images, compute sharpness values, write to a .txt file
         names, sharpness = self.test_focus("png", type=AVG_EDGE_STRENGTH)
+        maxlen = len(max(names, key=len))
         st = ""
         for name, sp in zip(names, sharpness):
-            st = st + "{}\t{:.4f}\n".format(name, sp)
+            st = st + "{}\t{:.4f}\n".format(name.ljust(maxlen, " "), sp)
         with open(out_file, "w") as f:
             f.write(st)
 
