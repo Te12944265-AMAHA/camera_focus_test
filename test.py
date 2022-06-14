@@ -9,9 +9,11 @@ ENTROPY = 0
 VARIANCE = 1
 GRADIENT = 2
 AVG_EDGE_STRENGTH = 3
+AVG_EDGE_STRENGTH_PATCH = 4
 
 FRAME_LEN = 0.05
 PEAK_COOLDOWN = 60  # there can't be 2 peaks in 60 frames (3s)
+SCALE_FACTOR = 0.25
 
 
 class CameraFocus:
@@ -95,13 +97,13 @@ class CameraFocus:
 
     def focus_average_edge_strength_patch(self, img):
         # scale image
-
+        image = cv2.resize(img, (0, 0), fx=SCALE_FACTOR, fy=SCALE_FACTOR)
         # do sobel
-
+        return self.focus_average_edge_strength(image)
         # find patches containing edges
 
         # find AES of each patch
-        pass
+        # pass
 
     def test_focus_video(self, video_name, type=AVG_EDGE_STRENGTH):
         # get each frame, display it, compute its sharpness
@@ -120,7 +122,7 @@ class CameraFocus:
             if ret == True:
                 cv2.imshow("Frame", frame)
                 start_time = time.time()
-                val = self.test_focus_image(frame)
+                val = self.test_focus_image(frame, type)
                 values.append(val)
                 end_time = time.time()
                 total_time += end_time - start_time
@@ -178,7 +180,7 @@ class CameraFocus:
                     continue
                 val = 0
                 start_time = time.time()
-                val = self.test_focus_image(image)
+                val = self.test_focus_image(image, type)
                 end_time = time.time()
                 print(
                     "Image: {}\ttime: {:.4f} ms\tFocus level: {}".format(
@@ -198,6 +200,8 @@ class CameraFocus:
             val = self.focus_image_gradient(image)
         elif type == AVG_EDGE_STRENGTH:
             val = self.focus_average_edge_strength(image)
+        elif type == AVG_EDGE_STRENGTH_PATCH:
+            val = self.focus_average_edge_strength_patch(image)
         return val
 
     def create_blank(self, _width, _height, _rgb_color=(0, 0, 0)):
@@ -225,6 +229,6 @@ class CameraFocus:
 if __name__ == "__main__":
     camera_focus = CameraFocus()
     # camera_focus.create_blank_image_file("black.png", 2880, 1860)
-    camera_focus.test_focus_video("focus1.mp4", type=AVG_EDGE_STRENGTH)
+    camera_focus.test_focus_video("focus1.mp4", type=AVG_EDGE_STRENGTH_PATCH)
     # camera_focus.generate_ground_truth_data("gt.txt")
     # camera_focus.test_focus("small_ok_1")
