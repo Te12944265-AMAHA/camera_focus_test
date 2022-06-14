@@ -1,7 +1,6 @@
 from cProfile import label
-from threading import local
-from black import out
 import numpy as np
+import time
 import cv2
 import os
 import matplotlib.pyplot as plt
@@ -10,6 +9,9 @@ ENTROPY = 0
 VARIANCE = 1
 GRADIENT = 2
 AVG_EDGE_STRENGTH = 3
+
+FRAME_LEN = 0.05
+PEAK_COOLDOWN = 60  # there can't be 2 peaks in 60 frames (3s)
 
 
 class CameraFocus:
@@ -38,7 +40,7 @@ class CameraFocus:
         img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         return np.var(img)
 
-    def focus_image_gradient(self, image, name=""):
+    def focus_image_gradient(self, image):
         "Get magnitude of gradient for given image"
         img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         ddepth = cv2.CV_32F
@@ -63,7 +65,6 @@ class CameraFocus:
         )
 
         plt.legend(loc="upper left")
-        plt.title(name)
         plt.subplot(1, 2, 2)
         plt.imshow(grad)
         plt.show()
@@ -92,23 +93,78 @@ class CameraFocus:
         num_valid_pix = np.sum(np.where(grad != 0, 1.0, 0.0), dtype=float)
         return np.sum(grad, dtype=float) / num_valid_pix if num_valid_pix > 0 else 0
 
-    def NMS(self, img, k=5):
-        h, w = img.shape[0], img.shape[1]
-        margin = (k - 1) // 2
-        for r in range(h):
-            for c in range(w):
-                if r < margin or r >= h - margin or c < margin or c >= w - margin:
-                    img[r, c] = 0
-                    continue
-                local_max = 0
-                for pr in range(r - margin, r + margin + 1):
-                    for pc in range(c - margin, c + margin + 1):
-                        if img[pr, pc] <= local_max:
-                            img[pr, pc] = 0
-                        else:
-                            local_max = img[pr, pc]
+    def focus_average_edge_strength_patch(self, img):
+        # scale image
 
-    def test_focus(self, img_name, type=VARIANCE):
+        # do sobel
+
+        # find patches containing edges
+
+        # find AES of each patch
+        pass
+
+    def test_focus_video(self, video_name, type=AVG_EDGE_STRENGTH):
+        # get each frame, display it, compute its sharpness
+        print("Computing sharpness from video..")
+        cap = cv2.VideoCapture(video_name)
+        if cap.isOpened() == False:
+            raise Exception("Error opening video file. Exiting..")
+        peak_times = []
+        values = []
+        total_time = 0.0
+        frame_counter = 0
+        peak_counter = 0
+        peak_triggered = False
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if ret == True:
+                cv2.imshow("Frame", frame)
+                start_time = time.time()
+                val = self.test_focus_image(frame)
+                values.append(val)
+                end_time = time.time()
+                total_time += end_time - start_time
+                key = cv2.waitKey(50)
+                if peak_counter == PEAK_COOLDOWN:
+                    peak_counter = 0
+                    peak_triggered = False
+                if key == ord("m"):
+                    if peak_counter == 0:
+                        peak_times.append(frame_counter)
+                        print("marked at frame {}".format(frame_counter))
+                        peak_triggered = True
+                if peak_triggered == True:
+                    peak_counter += 1
+                frame_counter += 1
+            elif ret == False:
+                print("Reached end of video or got bad frame.")
+                break
+        cap.release()
+        cv2.destroyAllWindows()
+        print(
+            "Done getting images from video. Average computation time: {:.4f} ms".format(
+                total_time / float(frame_counter) * 1000.0
+            )
+        )
+        values = np.array(values)
+        # plot time vs sharpness amd save
+        plt.plot(np.arange(frame_counter) * FRAME_LEN, values, label="sharpness")
+        # plot manually-marked peak time and value
+        marked_peak_arr = np.array(peak_times)
+        marked_peak_val_arr = values[peak_times]
+        plt.vlines(
+            x=marked_peak_arr * FRAME_LEN,
+            ymin=0,
+            ymax=marked_peak_val_arr,
+            colors="green",
+            ls=":",
+            lw=2,
+            label="marked peaks",
+        )
+        plt.legend(loc="upper left")
+        plt.show()
+
+    def test_focus_image_file(self, img_name, type=AVG_EDGE_STRENGTH):
         fnames = os.listdir(self.path)
         fnames.sort()
         img_names = []
@@ -121,18 +177,28 @@ class CameraFocus:
                 except:
                     continue
                 val = 0
-                if type == ENTROPY:
-                    val = self.focus_entropy(image)
-                elif type == VARIANCE:
-                    val = self.focus_variance(image)
-                elif type == GRADIENT:
-                    val = self.focus_image_gradient(image, name=fname)
-                elif type == AVG_EDGE_STRENGTH:
-                    val = self.focus_average_edge_strength(image)
-                print("Image: {}\tFocus level: {}".format(fname, val))
+                start_time = time.time()
+                val = self.test_focus_image(image)
+                end_time = time.time()
+                print(
+                    "Image: {}\ttime: {:.4f} ms\tFocus level: {}".format(
+                        fname, (end_time - start_time) * 1000, val
+                    )
+                )
                 img_names.append(abs_fname.split("/")[-1])
                 sharpness_values.append(val)
         return img_names, sharpness_values
+
+    def test_focus_image(self, image, type=AVG_EDGE_STRENGTH):
+        if type == ENTROPY:
+            val = self.focus_entropy(image)
+        elif type == VARIANCE:
+            val = self.focus_variance(image)
+        elif type == GRADIENT:
+            val = self.focus_image_gradient(image)
+        elif type == AVG_EDGE_STRENGTH:
+            val = self.focus_average_edge_strength(image)
+        return val
 
     def create_blank(self, _width, _height, _rgb_color=(0, 0, 0)):
         "Create new image(numpy array) filled with certain color in RGB."
@@ -159,6 +225,6 @@ class CameraFocus:
 if __name__ == "__main__":
     camera_focus = CameraFocus()
     # camera_focus.create_blank_image_file("black.png", 2880, 1860)
-    # camera_focus.test_focus("blurry", type=AVG_EDGE_STRENGTH)
-    camera_focus.generate_ground_truth_data("gt.txt")
+    camera_focus.test_focus_video("focus1.mp4", type=AVG_EDGE_STRENGTH)
+    # camera_focus.generate_ground_truth_data("gt.txt")
     # camera_focus.test_focus("small_ok_1")
