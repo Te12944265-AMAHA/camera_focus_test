@@ -10,6 +10,8 @@ VARIANCE = 1
 GRADIENT = 2
 AVG_EDGE_STRENGTH = 3
 AVG_EDGE_STRENGTH_PATCH = 4
+LAPLACIAN_VAR = 5
+SOBEL_VAR = 6
 
 FRAME_LEN = 0.05
 PEAK_COOLDOWN = 60  # there can't be 2 peaks in 60 frames (3s)
@@ -44,13 +46,7 @@ class CameraFocus:
 
     def focus_image_gradient(self, image):
         "Get magnitude of gradient for given image"
-        img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        ddepth = cv2.CV_32F
-        dx = cv2.Sobel(img, ddepth, 1, 0, ksize=3)
-        dy = cv2.Sobel(img, ddepth, 0, 1)
-        abs_grad_x = cv2.convertScaleAbs(dx)
-        abs_grad_y = cv2.convertScaleAbs(dy)
-        grad = cv2.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0)
+        grad, min_grad, max_grad = self.sobel(image)
         # mag = cv2.magnitude(dx, dy) / 1.414
         # mag = np.clip(mag, 0, 255)
         marg = np.histogram(np.ravel(grad), bins=np.arange(257))[0]
@@ -62,7 +58,7 @@ class CameraFocus:
             np.arange(256),
             marg,
             label="std: {}\nmin: {}\nmax: {}\nsharpness: {}".format(
-                np.std(grad), np.min(grad), np.max(grad), val
+                np.std(grad), min_grad, max_grad, val
             ),
         )
 
@@ -72,13 +68,7 @@ class CameraFocus:
         plt.show()
         return val
 
-    def focus_average_edge_strength(self, img):
-        """
-        https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.7.9921&rep=rep1&type=pdf
-        """
-        # do edge detection
-        # non-max suppression
-        # take average of edge
+    def sobel(self, img):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         ddepth = cv2.CV_32F
         dx = cv2.Sobel(img, ddepth, 1, 0, ksize=3)
@@ -90,10 +80,29 @@ class CameraFocus:
         # check range of grad, then select filter criteria
         max_grad = np.max(grad)
         min_grad = np.min(grad)
+        return grad, min_grad, max_grad
+
+    def focus_average_edge_strength(self, img):
+        """
+        https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.7.9921&rep=rep1&type=pdf
+        """
+        # do edge detection
+        # non-max suppression
+        # take average of edge
+        grad, min_grad, max_grad = self.sobel(img)
         filter_th = int((max_grad - min_grad) * 0.6) + min_grad
         grad = np.where(grad >= filter_th, grad, 0.0)
         num_valid_pix = np.sum(np.where(grad != 0, 1.0, 0.0), dtype=float)
         return np.sum(grad, dtype=float) / num_valid_pix if num_valid_pix > 0 else 0
+
+    def focus_laplacian_var(self, img):
+        image = cv2.resize(img, (0, 0), fx=SCALE_FACTOR, fy=SCALE_FACTOR)
+        return cv2.Laplacian(image, cv2.CV_64F).var()
+
+    def focus_sobel_var(self, img):
+        image = cv2.resize(img, (0, 0), fx=SCALE_FACTOR, fy=SCALE_FACTOR)
+        grad, min_grad, max_grad = self.sobel(image)
+        return grad.var()
 
     def focus_average_edge_strength_patch(self, img):
         # scale image
@@ -202,6 +211,10 @@ class CameraFocus:
             val = self.focus_average_edge_strength(image)
         elif type == AVG_EDGE_STRENGTH_PATCH:
             val = self.focus_average_edge_strength_patch(image)
+        elif type == LAPLACIAN_VAR:
+            val = self.focus_laplacian_var(image)
+        elif type == SOBEL_VAR:
+            val = self.focus_sobel_var(image)
         return val
 
     def create_blank(self, _width, _height, _rgb_color=(0, 0, 0)):
@@ -229,6 +242,6 @@ class CameraFocus:
 if __name__ == "__main__":
     camera_focus = CameraFocus()
     # camera_focus.create_blank_image_file("black.png", 2880, 1860)
-    camera_focus.test_focus_video("focus1.mp4", type=AVG_EDGE_STRENGTH_PATCH)
+    camera_focus.test_focus_video("focus1.mp4", type=SOBEL_VAR)
     # camera_focus.generate_ground_truth_data("gt.txt")
     # camera_focus.test_focus("small_ok_1")

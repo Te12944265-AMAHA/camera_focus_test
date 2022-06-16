@@ -1,0 +1,99 @@
+digraph pipeline {
+  rankdir=LR;
+  fontname="sans";
+  fontsize="10";
+  labelloc=t;
+  nodesep=.1;
+  ranksep=.2;
+  label="<GstPipeline>\nsrc_pipeline_A\n[>]";
+  node [style="filled,rounded", shape=box, fontsize="9", fontname="sans", margin="0.0,0.0"];
+  edge [labelfontsize="6", fontsize="9", fontname="monospace"];
+  
+  legend [
+    pos="0,0!",
+    margin="0.05,0.05",
+    style="filled",
+    label="Legend\lElement-States: [~] void-pending, [0] null, [-] ready, [=] paused, [>] playing\lPad-Activation: [-] none, [>] push, [<] pull\lPad-Flags: [b]locked, [f]lushing, [b]locking, [E]OS; upper-case is set\lPad-Task: [T] has started task, [t] has paused task\l",
+  ];
+  subgraph cluster_src0A_parent_bin_0x55b7da00c0 {
+    fontname="Bitstream Vera Sans";
+    fontsize="8";
+    style="filled,rounded";
+    color=black;
+    label="GstBin\nsrc0A_parent_bin\n[>]\nparent=(GstPipeline) src_pipeline_A\nmessage-forward=TRUE";
+    fillcolor="#ffffff";
+    subgraph cluster_src0A_interpipesink_0x55b798e360 {
+      fontname="Bitstream Vera Sans";
+      fontsize="8";
+      style="filled,rounded";
+      color=black;
+      label="GstInterPipeSink\nsrc0A_interpipesink\n[>]\nparent=(GstBin) src0A_parent_bin\nsync=FALSE\nlast-sample=((GstSample*) 0x55f271fac0)\ncaps=video/x-raw(memory:NVMM), width=(int)2880, height=(int)1860, format=(string)NV12…\neos=FALSE\nmax-buffers=3\ndrop=TRUE\nnum-listeners=2";
+      subgraph cluster_src0A_interpipesink_0x55b798e360_sink {
+        label="";
+        style="invis";
+        src0A_interpipesink_0x55b798e360_sink_0x55b7de27c0 [color=black, fillcolor="#aaaaff", label="sink\n[>][bfb]", height="0.2", style="filled,solid"];
+      }
+
+      fillcolor="#aaaaff";
+    }
+
+    subgraph cluster_src0A_bin_0x55b7da0260 {
+      fontname="Bitstream Vera Sans";
+      fontsize="8";
+      style="filled,rounded";
+      color=black;
+      label="GstBin\nsrc0A_bin\n[>]\nparent=(GstBin) src0A_parent_bin\nmessage-forward=TRUE";
+      subgraph cluster_src0A_bin_0x55b7da0260_src {
+        label="";
+        style="invis";
+        _proxypad0_0x55b7dea0f0 [color=black, fillcolor="#ffdddd", label="proxypad0\n[>][bfb]", height="0.2", style="filled,solid"];
+      _proxypad0_0x55b7dea0f0 -> src0A_bin_0x55b7da0260_src_0x55b7de80e0 [style=dashed, minlen=0]
+        src0A_bin_0x55b7da0260_src_0x55b7de80e0 [color=black, fillcolor="#ffdddd", label="src\n[>][bfb]", height="0.2", style="filled,solid"];
+      }
+
+      fillcolor="#ffffff";
+      subgraph cluster_src0A_cap_filter_0x55b7de41a0 {
+        fontname="Bitstream Vera Sans";
+        fontsize="8";
+        style="filled,rounded";
+        color=black;
+        label="GstCapsFilter\nsrc0A_cap_filter\n[>]\nparent=(GstBin) src0A_bin\ncaps=video/x-raw(memory:NVMM), format=(string)NV12, width=(int)2880, height=(int)1860…";
+        subgraph cluster_src0A_cap_filter_0x55b7de41a0_sink {
+          label="";
+          style="invis";
+          src0A_cap_filter_0x55b7de41a0_sink_0x55b7de2320 [color=black, fillcolor="#aaaaff", label="sink\n[>][bfb]", height="0.2", style="filled,solid"];
+        }
+
+        subgraph cluster_src0A_cap_filter_0x55b7de41a0_src {
+          label="";
+          style="invis";
+          src0A_cap_filter_0x55b7de41a0_src_0x55b7de2570 [color=black, fillcolor="#ffaaaa", label="src\n[>][bfb]", height="0.2", style="filled,solid"];
+        }
+
+        src0A_cap_filter_0x55b7de41a0_sink_0x55b7de2320 -> src0A_cap_filter_0x55b7de41a0_src_0x55b7de2570 [style="invis"];
+        fillcolor="#aaffaa";
+      }
+
+      src0A_cap_filter_0x55b7de41a0_src_0x55b7de2570 -> _proxypad0_0x55b7dea0f0 [label="video/x-raw(memory:NVMM)\l               width: 2880\l              height: 1860\l              format: NV12\l           framerate: 20/1\l"]
+      subgraph cluster_src0A_csi_camera_0x55b7c902e0 {
+        fontname="Bitstream Vera Sans";
+        fontsize="8";
+        style="filled,rounded";
+        color=black;
+        label="GstNvArgusCameraSrc\nsrc0A_csi_camera\n[>]\nparent=(GstBin) src0A_bin\ndo-timestamp=TRUE\nsilent=TRUE\nsensor-mode=0\ntotal-sensor-modes=1\nexposuretimerange=NULL\ngainrange=NULL\nispdigitalgainrange=NULL\nbufapi-version=TRUE";
+        subgraph cluster_src0A_csi_camera_0x55b7c902e0_src {
+          label="";
+          style="invis";
+          src0A_csi_camera_0x55b7c902e0_src_0x55b7de20d0 [color=black, fillcolor="#ffaaaa", label="src\n[>][bfb][T]", height="0.2", style="filled,solid"];
+        }
+
+        fillcolor="#ffaaaa";
+      }
+
+      src0A_csi_camera_0x55b7c902e0_src_0x55b7de20d0 -> src0A_cap_filter_0x55b7de41a0_sink_0x55b7de2320 [label="video/x-raw(memory:NVMM)\l               width: 2880\l              height: 1860\l              format: NV12\l           framerate: 20/1\l"]
+    }
+
+    src0A_bin_0x55b7da0260_src_0x55b7de80e0 -> src0A_interpipesink_0x55b798e360_sink_0x55b7de27c0 [label="video/x-raw(memory:NVMM)\l               width: 2880\l              height: 1860\l              format: NV12\l           framerate: 20/1\l"]
+  }
+
+}

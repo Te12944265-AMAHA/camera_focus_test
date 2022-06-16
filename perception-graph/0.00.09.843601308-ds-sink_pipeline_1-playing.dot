@@ -1,0 +1,246 @@
+digraph pipeline {
+  rankdir=LR;
+  fontname="sans";
+  fontsize="10";
+  labelloc=t;
+  nodesep=.1;
+  ranksep=.2;
+  label="<GstPipeline>\nsink_pipeline_1\n[>]";
+  node [style="filled,rounded", shape=box, fontsize="9", fontname="sans", margin="0.0,0.0"];
+  edge [labelfontsize="6", fontsize="9", fontname="monospace"];
+  
+  legend [
+    pos="0,0!",
+    margin="0.05,0.05",
+    style="filled",
+    label="Legend\lElement-States: [~] void-pending, [0] null, [-] ready, [=] paused, [>] playing\lPad-Activation: [-] none, [>] push, [<] pull\lPad-Flags: [b]locked, [f]lushing, [b]locking, [E]OS; upper-case is set\lPad-Task: [T] has started task, [t] has paused task\l",
+  ];
+  subgraph cluster_sink1_interpipesrc_0x55b8104890 {
+    fontname="Bitstream Vera Sans";
+    fontsize="8";
+    style="filled,rounded";
+    color=black;
+    label="GstInterPipeSrc\nsink1_interpipesrc\n[>]\nparent=(GstPipeline) sink_pipeline_1\ndo-timestamp=TRUE\ncaps=video/x-raw(memory:NVMM), width=(int)2880, height=(int)1860, framerate=(fraction…\nis-live=TRUE\nemit-signals=FALSE\nlisten-to=\"proc_interpipesink0\"";
+    subgraph cluster_sink1_interpipesrc_0x55b8104890_src {
+      label="";
+      style="invis";
+      sink1_interpipesrc_0x55b8104890_src_0x55b80ed580 [color=black, fillcolor="#ffaaaa", label="src\n[>][bfb][T]", height="0.2", style="filled,solid"];
+    }
+
+    fillcolor="#ffaaaa";
+  }
+
+  sink1_interpipesrc_0x55b8104890_src_0x55b80ed580 -> sink1_encoder_bin_0x55b7da0dc0_sink_0x55b8106410 [label="video/x-raw(memory:NVMM)\l               width: 2880\l              height: 1860\l           framerate: 20/1\l          batch-size: 2\l  num-surfaces-per-frame: 1\l              format: RGBA\l"]
+  subgraph cluster_sink1_encoder_bin_0x55b7da0dc0 {
+    fontname="Bitstream Vera Sans";
+    fontsize="8";
+    style="filled,rounded";
+    color=black;
+    label="GstBin\nsink1_encoder_bin\n[>]\nparent=(GstPipeline) sink_pipeline_1";
+    subgraph cluster_sink1_encoder_bin_0x55b7da0dc0_sink {
+      label="";
+      style="invis";
+      _proxypad12_0x55b8108080 [color=black, fillcolor="#ddddff", label="proxypad12\n[>][bfb]", height="0.2", style="filled,solid"];
+    sink1_encoder_bin_0x55b7da0dc0_sink_0x55b8106410 -> _proxypad12_0x55b8108080 [style=dashed, minlen=0]
+      sink1_encoder_bin_0x55b7da0dc0_sink_0x55b8106410 [color=black, fillcolor="#ddddff", label="sink\n[>][bfb]", height="0.2", style="filled,solid"];
+    }
+
+    fillcolor="#ffffff";
+    subgraph cluster_sink1_sink_0x55b7e243e0 {
+      fontname="Bitstream Vera Sans";
+      fontsize="8";
+      style="filled,rounded";
+      color=black;
+      label="GstSplitMuxSink\nsink1_sink\n[>]\nparent=(GstBin) sink1_encoder_bin\nlocation=\"/ephemeral_data/perception/videos/camera_0/videos\"\nmax-size-time=30000000000";
+      subgraph cluster_sink1_sink_0x55b7e243e0_sink {
+        label="";
+        style="invis";
+        _proxypad11_0x55b7debd70 [color=black, fillcolor="#ddddff", label="proxypad11\n[>][bfb]", height="0.2", style="filled,dashed"];
+      sink1_sink_0x55b7e243e0_video_0x55b8106190 -> _proxypad11_0x55b7debd70 [style=dashed, minlen=0]
+        sink1_sink_0x55b7e243e0_video_0x55b8106190 [color=black, fillcolor="#ddddff", label="video\n[>][bfb]", height="0.2", style="filled,dashed"];
+      }
+
+      fillcolor="#ffffff";
+      subgraph cluster_sink_0x55f27b46c0 {
+        fontname="Bitstream Vera Sans";
+        fontsize="8";
+        style="filled,rounded";
+        color=black;
+        label="GstFileSink\nsink\n[>]\nparent=(GstSplitMuxSink) sink1_sink\nsync=FALSE\nasync=FALSE\nlocation=\"/ephemeral_data/perception/videos/camera_0/videos/2022-06-15_22-54-27_A_165971…";
+        subgraph cluster_sink_0x55f27b46c0_sink {
+          label="";
+          style="invis";
+          sink_0x55f27b46c0_sink_0x55b810fc50 [color=black, fillcolor="#aaaaff", label="sink\n[>][bfb]", height="0.2", style="filled,solid"];
+        }
+
+        fillcolor="#aaaaff";
+      }
+
+      subgraph cluster_queue0_0x55b7e2f3c0 {
+        fontname="Bitstream Vera Sans";
+        fontsize="8";
+        style="filled,rounded";
+        color=black;
+        label="GstQueue\nqueue0\n[>]\nparent=(GstSplitMuxSink) sink1_sink\nmax-size-buffers=5\nmax-size-bytes=0\nmax-size-time=0";
+        subgraph cluster_queue0_0x55b7e2f3c0_sink {
+          label="";
+          style="invis";
+          queue0_0x55b7e2f3c0_sink_0x55b80ed0e0 [color=black, fillcolor="#aaaaff", label="sink\n[>][bfb]", height="0.2", style="filled,solid"];
+        }
+
+        subgraph cluster_queue0_0x55b7e2f3c0_src {
+          label="";
+          style="invis";
+          queue0_0x55b7e2f3c0_src_0x55b80ed330 [color=black, fillcolor="#ffaaaa", label="src\n[>][bfb][T]", height="0.2", style="filled,solid"];
+        }
+
+        queue0_0x55b7e2f3c0_sink_0x55b80ed0e0 -> queue0_0x55b7e2f3c0_src_0x55b80ed330 [style="invis"];
+        fillcolor="#aaffaa";
+      }
+
+      _proxypad11_0x55b7debd70 -> queue0_0x55b7e2f3c0_sink_0x55b80ed0e0 [label="video/x-h265\l       stream-format: hvc1\l           alignment: au\l             profile: main\l               width: 2880\l              height: 1860\l  pixel-aspect-ratio: 1/1\l           framerate: 20/1\l      interlace-mode: progressive\l         colorimetry: bt709\l         chroma-site: mpeg2\l       chroma-format: 4:2:0\l      bit-depth-luma: 8\l    bit-depth-chroma: 8\l              parsed: true\l                tier: main\l               level: 5\l          codec_data: 0101400000000000000000...\l"]
+      queue0_0x55b7e2f3c0_src_0x55b80ed330 -> muxer_0x55b7de9c00_video_0_0x55b80ece90 [label="video/x-h265\l       stream-format: hvc1\l           alignment: au\l             profile: main\l               width: 2880\l              height: 1860\l  pixel-aspect-ratio: 1/1\l           framerate: 20/1\l      interlace-mode: progressive\l         colorimetry: bt709\l         chroma-site: mpeg2\l       chroma-format: 4:2:0\l      bit-depth-luma: 8\l    bit-depth-chroma: 8\l              parsed: true\l                tier: main\l               level: 5\l          codec_data: 0101400000000000000000...\l"]
+      subgraph cluster_muxer_0x55b7de9c00 {
+        fontname="Bitstream Vera Sans";
+        fontsize="8";
+        style="filled,rounded";
+        color=black;
+        label="GstMP4Mux\nmuxer\n[>]\nparent=(GstSplitMuxSink) sink1_sink\nfaststart-file=\"/tmp/qtmux1262030592\"\nreserved-duration-remaining=18446744073709551615";
+        subgraph cluster_muxer_0x55b7de9c00_sink {
+          label="";
+          style="invis";
+          muxer_0x55b7de9c00_video_0_0x55b80ece90 [color=black, fillcolor="#aaaaff", label="video_0\n[>][bfb]", height="0.2", style="filled,dashed"];
+        }
+
+        subgraph cluster_muxer_0x55b7de9c00_src {
+          label="";
+          style="invis";
+          muxer_0x55b7de9c00_src_0x55b80ecc40 [color=black, fillcolor="#ffaaaa", label="src\n[>][bfb]", height="0.2", style="filled,solid"];
+        }
+
+        muxer_0x55b7de9c00_video_0_0x55b80ece90 -> muxer_0x55b7de9c00_src_0x55b80ecc40 [style="invis"];
+        fillcolor="#aaffaa";
+      }
+
+      muxer_0x55b7de9c00_src_0x55b80ecc40 -> sink_0x55f27b46c0_sink_0x55b810fc50 [labeldistance="10", labelangle="0", label="                                                  ", taillabel="video/quicktime\l             variant: iso\l", headlabel="ANY"]
+    }
+
+    subgraph cluster_sink1_encoder_0x55b80ead40 {
+      fontname="Bitstream Vera Sans";
+      fontsize="8";
+      style="filled,rounded";
+      color=black;
+      label="nvv4l2h265enc\nsink1_encoder\n[>]\nparent=(GstBin) sink1_encoder_bin\ndevice=\"/dev/nvhost-msenc\"\ndevice-name=\"\"\ndevice-fd=64\nbitrate=14000000\ncontrol-rate=variable_bitrate\niframeinterval=1\nbufapi-version=TRUE\npeak-bitrate=16800000\nquant-i-frames=0\nquant-p-frames=0\nquant-b-frames=0\npreset-level=DisablePreset\nqp-range=NULL\nratecontrol-enable=FALSE\nSliceIntraRefreshInterval=0";
+      subgraph cluster_sink1_encoder_0x55b80ead40_sink {
+        label="";
+        style="invis";
+        sink1_encoder_0x55b80ead40_sink_0x55b80ec300 [color=black, fillcolor="#aaaaff", label="sink\n[>][bfb]", height="0.2", style="filled,solid"];
+      }
+
+      subgraph cluster_sink1_encoder_0x55b80ead40_src {
+        label="";
+        style="invis";
+        sink1_encoder_0x55b80ead40_src_0x55b80ec550 [color=black, fillcolor="#ffaaaa", label="src\n[>][bfb][T]", height="0.2", style="filled,solid"];
+      }
+
+      sink1_encoder_0x55b80ead40_sink_0x55b80ec300 -> sink1_encoder_0x55b80ead40_src_0x55b80ec550 [style="invis"];
+      fillcolor="#aaffaa";
+    }
+
+    sink1_encoder_0x55b80ead40_src_0x55b80ec550 -> h265_parser_0x55b80ee260_sink_0x55b80ec7a0 [label="video/x-h265\l       stream-format: byte-stream\l           alignment: au\l             profile: NULL\l               width: 2880\l              height: 1860\l  pixel-aspect-ratio: 1/1\l           framerate: 20/1\l      interlace-mode: progressive\l         colorimetry: bt709\l         chroma-site: mpeg2\l"]
+    subgraph cluster_sink1_cap_filter_0x55b7de4b60 {
+      fontname="Bitstream Vera Sans";
+      fontsize="8";
+      style="filled,rounded";
+      color=black;
+      label="GstCapsFilter\nsink1_cap_filter\n[>]\nparent=(GstBin) sink1_encoder_bin\ncaps=video/x-raw(memory:NVMM), format=(string)I420";
+      subgraph cluster_sink1_cap_filter_0x55b7de4b60_sink {
+        label="";
+        style="invis";
+        sink1_cap_filter_0x55b7de4b60_sink_0x55b80b9ca0 [color=black, fillcolor="#aaaaff", label="sink\n[>][bfb]", height="0.2", style="filled,solid"];
+      }
+
+      subgraph cluster_sink1_cap_filter_0x55b7de4b60_src {
+        label="";
+        style="invis";
+        sink1_cap_filter_0x55b7de4b60_src_0x55b80ec0b0 [color=black, fillcolor="#ffaaaa", label="src\n[>][bfb]", height="0.2", style="filled,solid"];
+      }
+
+      sink1_cap_filter_0x55b7de4b60_sink_0x55b80b9ca0 -> sink1_cap_filter_0x55b7de4b60_src_0x55b80ec0b0 [style="invis"];
+      fillcolor="#aaffaa";
+    }
+
+    sink1_cap_filter_0x55b7de4b60_src_0x55b80ec0b0 -> sink1_encoder_0x55b80ead40_sink_0x55b80ec300 [label="video/x-raw(memory:NVMM)\l               width: 2880\l              height: 1860\l           framerate: 20/1\l          batch-size: 2\l  num-surfaces-per-frame: 1\l              format: I420\l"]
+    subgraph cluster_h265_parser_0x55b80ee260 {
+      fontname="Bitstream Vera Sans";
+      fontsize="8";
+      style="filled,rounded";
+      color=black;
+      label="GstH265Parse\nh265-parser\n[>]\nparent=(GstBin) sink1_encoder_bin";
+      subgraph cluster_h265_parser_0x55b80ee260_sink {
+        label="";
+        style="invis";
+        h265_parser_0x55b80ee260_sink_0x55b80ec7a0 [color=black, fillcolor="#aaaaff", label="sink\n[>][bfb]", height="0.2", style="filled,solid"];
+      }
+
+      subgraph cluster_h265_parser_0x55b80ee260_src {
+        label="";
+        style="invis";
+        h265_parser_0x55b80ee260_src_0x55b80ec9f0 [color=black, fillcolor="#ffaaaa", label="src\n[>][bfb]", height="0.2", style="filled,solid"];
+      }
+
+      h265_parser_0x55b80ee260_sink_0x55b80ec7a0 -> h265_parser_0x55b80ee260_src_0x55b80ec9f0 [style="invis"];
+      fillcolor="#aaffaa";
+    }
+
+    h265_parser_0x55b80ee260_src_0x55b80ec9f0 -> sink1_sink_0x55b7e243e0_video_0x55b8106190 [label="video/x-h265\l       stream-format: hvc1\l           alignment: au\l             profile: main\l               width: 2880\l              height: 1860\l  pixel-aspect-ratio: 1/1\l           framerate: 20/1\l      interlace-mode: progressive\l         colorimetry: bt709\l         chroma-site: mpeg2\l       chroma-format: 4:2:0\l      bit-depth-luma: 8\l    bit-depth-chroma: 8\l              parsed: true\l                tier: main\l               level: 5\l          codec_data: 0101400000000000000000...\l"]
+    subgraph cluster_sink1_transform_0x55b80e78d0 {
+      fontname="Bitstream Vera Sans";
+      fontsize="8";
+      style="filled,rounded";
+      color=black;
+      label="Gstnvvideoconvert\nsink1_transform\n[>]\nparent=(GstBin) sink1_encoder_bin\nsrc-crop=\"0:0:0:0\"\ndest-crop=\"0:0:0:0\"";
+      subgraph cluster_sink1_transform_0x55b80e78d0_sink {
+        label="";
+        style="invis";
+        sink1_transform_0x55b80e78d0_sink_0x55b80b9800 [color=black, fillcolor="#aaaaff", label="sink\n[>][bfb]", height="0.2", style="filled,solid"];
+      }
+
+      subgraph cluster_sink1_transform_0x55b80e78d0_src {
+        label="";
+        style="invis";
+        sink1_transform_0x55b80e78d0_src_0x55b80b9a50 [color=black, fillcolor="#ffaaaa", label="src\n[>][bfb]", height="0.2", style="filled,solid"];
+      }
+
+      sink1_transform_0x55b80e78d0_sink_0x55b80b9800 -> sink1_transform_0x55b80e78d0_src_0x55b80b9a50 [style="invis"];
+      fillcolor="#aaffaa";
+    }
+
+    sink1_transform_0x55b80e78d0_src_0x55b80b9a50 -> sink1_cap_filter_0x55b7de4b60_sink_0x55b80b9ca0 [label="video/x-raw(memory:NVMM)\l               width: 2880\l              height: 1860\l           framerate: 20/1\l          batch-size: 2\l  num-surfaces-per-frame: 1\l              format: I420\l"]
+    subgraph cluster_sink1_queue_0x55b7e2f0c0 {
+      fontname="Bitstream Vera Sans";
+      fontsize="8";
+      style="filled,rounded";
+      color=black;
+      label="GstQueue\nsink1_queue\n[>]\nparent=(GstBin) sink1_encoder_bin\ncurrent-level-buffers=1\ncurrent-level-bytes=64\ncurrent-level-time=57087003";
+      subgraph cluster_sink1_queue_0x55b7e2f0c0_sink {
+        label="";
+        style="invis";
+        sink1_queue_0x55b7e2f0c0_sink_0x55b80b9360 [color=black, fillcolor="#aaaaff", label="sink\n[>][bfb]", height="0.2", style="filled,solid"];
+      }
+
+      subgraph cluster_sink1_queue_0x55b7e2f0c0_src {
+        label="";
+        style="invis";
+        sink1_queue_0x55b7e2f0c0_src_0x55b80b95b0 [color=black, fillcolor="#ffaaaa", label="src\n[>][bfb][T]", height="0.2", style="filled,solid"];
+      }
+
+      sink1_queue_0x55b7e2f0c0_sink_0x55b80b9360 -> sink1_queue_0x55b7e2f0c0_src_0x55b80b95b0 [style="invis"];
+      fillcolor="#aaffaa";
+    }
+
+    _proxypad12_0x55b8108080 -> sink1_queue_0x55b7e2f0c0_sink_0x55b80b9360 [label="video/x-raw(memory:NVMM)\l               width: 2880\l              height: 1860\l           framerate: 20/1\l          batch-size: 2\l  num-surfaces-per-frame: 1\l              format: RGBA\l"]
+    sink1_queue_0x55b7e2f0c0_src_0x55b80b95b0 -> sink1_transform_0x55b80e78d0_sink_0x55b80b9800 [label="video/x-raw(memory:NVMM)\l               width: 2880\l              height: 1860\l           framerate: 20/1\l          batch-size: 2\l  num-surfaces-per-frame: 1\l              format: RGBA\l"]
+  }
+
+}
